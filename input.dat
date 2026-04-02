@@ -1,0 +1,28 @@
+%------------------------------------------------------------------------------------------------------------------------------------------------------------
+%Please input material parameters: the Young's modulus of RVE and the Poisson's Ratio of RVE.
+Mat_Parameter
+2E11 0.333
+%------------------------------------------------------------------------------------------------------------------------------------------------------------
+%Please input geometric parameters of RVE: the lower-left corner point of RVE and the length, width and height of RVE.
+RVE_Geometry
+0 0 1 1
+%------------------------------------------------------------------------------------------------------------------------------------------------------------
+%请输入单元网格类型（4节点四边形：Qua4，3节点三角形：Tri3，读入网格：Read_Mesh）
+Element_Type
+Tri3
+%------------------------------------------------------------------------------------------------------------------------------------------------------------
+%Please input grid size of RVE: the size of background grids (length, width and height).
+Grid_Size
+0.05 0.05
+%------------------------------------------------------------------------------------------------------------------------------------------------------------
+%Please input the displacement constraint condition: n boundary_case x0 y0 z0 Fixed_displacment_x Fixed_displacement_y. n denotes the number of constraint condition. 
+%if n=0, no constraint; n>1 the later parameters will be inputed n times with different conditions.
+%boundary_case denotes the kind of boundary. boundary_case=Point represents a point, (x0,y0,z0) is the coordinates of this point. 
+%boundary_case=Surface represents a surface, (a,b,c,d) is the coefficents of a plane a*x+b*y+c*z+d=0.
+%boundary_case=Zone represents a cuboid shape, (x0, x1, y0, y1, z0, z1) is the greatest and smallest value respectively in (x,y,z) direction. 
+%Fixed_displacement is a sign denoting the value of fixed displacement will be followed.
+%For 2D problem, boundary_case=Line, then input 4 parameters p0.x, p0.y, p1.x, p1.y
+Displacement
+2
+Line 0 0 0 1 Fixed_displacement_x  0.0 Fixed_displacement_y 0.0
+Line 1 0 1 1 Fixed_displacement_x 0.01

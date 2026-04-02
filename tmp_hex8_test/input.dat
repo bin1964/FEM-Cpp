@@ -1,0 +1,8 @@
+Mat_Parameter
+2.1E11 0.3
+Element_Type
+Hex8
+Displacement
+2
+Surface 1 0 0 0 Fixed_displacement_x 0.0 Fixed_displacement_y 0.0 Fixed_displacement_z 0.0
+Surface 1 0 0 -1 Fixed_displacement_x 0.01
