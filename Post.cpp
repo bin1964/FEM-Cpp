@@ -13,7 +13,7 @@ int Post::Output_Disp_Tecplot(vector<Node>& nodes, vector<Element>& elements, Ma
         return 0;
     }
 
-    ofstream otec("result_disp.dat");
+    ofstream otec("data\\results\\result_disp.dat");
     otec << "TITLE = Tecplot_Displacement" << endl;
 
     int any = 0;

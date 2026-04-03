@@ -20,7 +20,7 @@ int main (){
 
 	cout << "------------有限元分析程序开始运行-----------" << endl;
 	cout << "------------读取输入文件并生成网格-----------" << endl;
-	const char* inputfile = "input.dat";
+	const char* inputfile = "data\\input.dat";
 	ifstream in_file(inputfile);
 	if (!in_file.is_open()) {
 		cout << "Error: input.dat文件无法打开!" << endl;

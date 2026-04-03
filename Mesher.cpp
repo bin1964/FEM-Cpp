@@ -154,7 +154,7 @@ int Mesher::Generate_tri_grids(const Geom_RVE& geom_rve, const Grid_size& grid_s
 }
 
 int Mesher::Read_mesh() {
-	ifstream idata("mesh_inp.dat");
+	ifstream idata("data\\mesh_inp.dat");
 	if (!idata.is_open()) {
 		cout << "Error: mesh_inp.dat cannot be opened!" << endl;
 		return 0;
@@ -300,7 +300,7 @@ int Mesher::Export_mesh_data_tecplot() {
 		return 0;
 	}
 
-	ofstream otec("mesh\\mesh_tec.dat");
+	ofstream otec("data\\mesh\\mesh_tec.dat");
 	otec << "TITLE = Tecplot_Meshes" << endl;
 
 	int any = 0;
