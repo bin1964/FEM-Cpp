@@ -9,6 +9,7 @@
 using namespace std;
 
 namespace {
+// 计算 Hex8 单元在自然坐标下的形函数及其导数。
 void EvaluateHex8Shape(double xi, double eta, double zeta, double N[8], double dN_dxi[8], double dN_deta[8], double dN_dzeta[8]) {
 	const double xi_sign[8] = {-1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0};
 	const double eta_sign[8] = {-1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0};
@@ -429,6 +430,7 @@ namespace ShapeSpace {
 		return Nod_Co2;
 	}
 
+	// 根据网格中的节点数自动创建对应类型的单元对象。
 	int Generate_Element_Classes(vector<unique_ptr<ShapeInterface>>& shape, const Mat_para& mat_para, const Mesher& mesh_data) {
 		double E = mat_para.E;
 		double v = mat_para.v;

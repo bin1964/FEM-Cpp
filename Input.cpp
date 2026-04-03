@@ -1,6 +1,7 @@
 #include "Input.h"
 
 namespace {
+// 将一整行字符串按空白符拆分为 token 列表。
 vector<string> Tokenize(const string& line) {
 	istringstream istr(line);
 	vector<string> tokens;
@@ -11,14 +12,17 @@ vector<string> Tokenize(const string& line) {
 	return tokens;
 }
 
+// 将字符串转换为 double 数值。
 double ParseDouble(const string& token) {
 	return stod(token);
 }
 
+// 判断 token 是否为合法载荷分量关键字。
 bool IsLoadTypeToken(const string& token) {
 	return token == "Force_x" || token == "Force_y" || token == "Force_z";
 }
 
+// 判断 token 是否为合法位移约束关键字。
 bool IsDisplacementTypeToken(const string& token) {
 	return token == "Fixed_displacement_x" ||
 		token == "Fixed_displacement_y" ||
@@ -26,6 +30,7 @@ bool IsDisplacementTypeToken(const string& token) {
 		token == "Pure_shear";
 }
 
+// 检查载荷作用域与参数个数是否匹配。
 bool IsValidLoadDomain(const string& domain_type, size_t coef_count) {
 	if (domain_type == "Point") {
 		return coef_count == 2 || coef_count == 3;
@@ -42,6 +47,7 @@ bool IsValidLoadDomain(const string& domain_type, size_t coef_count) {
 	return false;
 }
 
+// 检查位移约束作用域与参数个数是否匹配。
 bool IsValidDisplacementDomain(const string& domain_type, size_t coef_count) {
 	if (domain_type == "All_boundaries") {
 		return coef_count == 0;
@@ -49,6 +55,7 @@ bool IsValidDisplacementDomain(const string& domain_type, size_t coef_count) {
 	return IsValidLoadDomain(domain_type, coef_count);
 }
 
+// 将载荷/位移方向关键字编码成分量掩码，便于做重复性检查。
 int GetComponentMask(const string& token) {
 	if (token == "Force_x" || token == "Fixed_displacement_x") {
 		return 1;
@@ -63,6 +70,7 @@ int GetComponentMask(const string& token) {
 }
 }
 
+// 按关键字分段读取输入文件。
 int Input::Read_Infile(ifstream& infile) {
 	cout << "Reading input file..." << endl;
 
@@ -137,6 +145,7 @@ int Input::Read_Infile(ifstream& infile) {
 	return 1;
 }
 
+// 初始化输入对象的默认参数。
 int Input::Data_Initialization() {
 	mat_para.keywords = "Mat_Parameter";
 	mat_para.mark = false;
@@ -174,6 +183,7 @@ int Input::Data_Initialization() {
 	return 1;
 }
 
+// 读取几何参数，可兼容二维和三维输入格式。
 int Input::Read_geom_rve(struct Geom_RVE& geom_rve, ifstream& infile) {
 	if (geom_rve.mark) {
 		cout << "Attention: \"" << geom_rve.keywords << "\" has been input!" << endl;
@@ -208,6 +218,7 @@ int Input::Read_geom_rve(struct Geom_RVE& geom_rve, ifstream& infile) {
 	return 1;
 }
 
+// 读取网格步长，可兼容二维和三维输入格式。
 int Input::Read_grid_size(struct Grid_size& grid_size, ifstream& infile) {
 	if (grid_size.mark) {
 		cout << "Attention: \"" << grid_size.keywords << "\" has been input!" << endl;
@@ -236,6 +247,7 @@ int Input::Read_grid_size(struct Grid_size& grid_size, ifstream& infile) {
 	return 1;
 }
 
+// 读取单元类型关键字。
 int Input::Read_element_type(struct ElementType& element_type, ifstream& infile) {
 	if (element_type.mark) {
 		cout << "Attention: \"" << element_type.keywords << "\" has been input!" << endl;
@@ -267,6 +279,7 @@ int Input::Read_element_type(struct ElementType& element_type, ifstream& infile)
 	return 1;
 }
 
+// 读取材料参数。
 int Input::Read_mat_para(struct Mat_para& mat_para, ifstream& infile) {
 	if (mat_para.mark) {
 		cout << "Attention: \"" << mat_para.keywords << "\" has been input!" << endl;
@@ -285,6 +298,7 @@ int Input::Read_mat_para(struct Mat_para& mat_para, ifstream& infile) {
 	return 1;
 }
 
+// 读取载荷定义并保存为统一的数据结构。
 int Input::Read_load(struct Load& load, ifstream& infile) {
 	if (load.mark) {
 		cout << "Attention: \"" << load.keywords << "\" has been input!" << endl;
@@ -358,6 +372,7 @@ int Input::Read_load(struct Load& load, ifstream& infile) {
 	return 1;
 }
 
+// 读取位移约束定义并保存为统一的数据结构。
 int Input::Read_displacement(struct Displace& displace, ifstream& infile) {
 	if (displace.mark) {
 		cout << "Attention: \"" << displace.keywords << "\" has been input!" << endl;
@@ -441,6 +456,7 @@ int Input::Read_displacement(struct Displace& displace, ifstream& infile) {
 	return 1;
 }
 
+// 读取一行有效内容，并自动跳过注释行。
 string Input::Get_Line(ifstream& infile) const {
 	string s;
 	getline(infile, s);

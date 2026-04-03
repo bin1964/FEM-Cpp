@@ -1,5 +1,6 @@
 #include "Post.h"
 
+// 将位移结果导出为 Tecplot 文本格式，并自动区分二维与三维输出。
 int Post::Output_Disp_Tecplot(vector<Node>& nodes, vector<Element>& elements, Matrix& Disp)
 {
     if (nodes.empty() || elements.empty()) {

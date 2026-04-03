@@ -1,5 +1,6 @@
-#include "Fem2D.h"
+#include "Fem.h"
 
+// 按三维坐标构造节点，默认视为内点。
 Node::Node(double ix, double iy, double iz) {
 	x = ix;
 	y = iy;
@@ -7,13 +8,15 @@ Node::Node(double ix, double iy, double iz) {
 	type = 0;
 }
 
+// 按三维坐标和节点类型构造节点。
 Node::Node(double ix, double iy, double iz, int itype) {
 	x = ix;
 	y = iy;
 	z = iz;
-	type = itype;	//0内点	1边界点	2角点
+	type = itype;
 }
 
+// 按二维坐标和节点类型构造节点，z 坐标默认取 0。
 Node::Node(double ix, double iy, int itype) {
 	x = ix;
 	y = iy;

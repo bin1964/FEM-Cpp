@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(FEM_Cpp
-    Fem2D.cpp
+    Fem.cpp
     Geometry2D.cpp
     Input.cpp
     main.cpp

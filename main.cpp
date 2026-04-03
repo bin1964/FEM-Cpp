@@ -11,10 +11,12 @@
 
 using namespace std;
 
+// 主函数：按照“读入 -> 生成网格 -> 组装求解 -> 结果输出”的顺序执行有限元流程。
 int main (){
 	Input input_data;
 	Mesher mesh_data;
-	vector<unique_ptr<ShapeSpace::ShapeInterface>> shape;	//存放单元对象的指针
+	// 统一存放不同类型单元对象的多态指针。
+	vector<unique_ptr<ShapeSpace::ShapeInterface>> shape;
 	Slove slove_data;
 	Post pot_data;
 
@@ -26,7 +28,8 @@ int main (){
 		cout << "Error: input.dat文件无法打开!" << endl;
 		return 0;
 	}
-	input_data.Data_Initialization();//初始化成功，会输出信息
+	// 先写入默认值，再用输入文件中的参数覆盖。
+	input_data.Data_Initialization();
 	if(input_data.Read_Infile(in_file) == 0) return 0;
 	if(mesh_data.Generate_Mesh(input_data.element_type, input_data.geom_rve, input_data.grid_size) == 0) return 0;
 

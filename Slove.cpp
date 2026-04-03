@@ -7,6 +7,7 @@
 using namespace std;
 
 namespace {
+// 统一描述二维/三维 Zone 作用域的边界范围。
 struct ZoneBounds
 {
     double xmin;
@@ -18,6 +19,7 @@ struct ZoneBounds
     bool is3d;
 };
 
+// 描述 Hex8 单元一个面的局部节点编号与自然坐标信息。
 struct HexFaceInfo
 {
     int nodes[4];
@@ -27,6 +29,7 @@ struct HexFaceInfo
     int param_axis_2;
 };
 
+// 将一维数组转换为列向量矩阵。
 Matrix MakeColumnMatrix(const vector<double>& values)
 {
     Matrix result(values.size(), 1);
@@ -37,6 +40,7 @@ Matrix MakeColumnMatrix(const vector<double>& values)
     return result;
 }
 
+// 根据网格节点或单元信息自动判断问题维度。
 int DetectSpatialDimension(const vector<Node>& nodes, const vector<Element>* elements = nullptr)
 {
     if (elements != nullptr)
@@ -60,11 +64,13 @@ int DetectSpatialDimension(const vector<Node>& nodes, const vector<Element>* ele
     return 2;
 }
 
+// 将“节点号 + 分量号”映射到总体自由度编号。
 int DofIndex(int node_id, int component, int dof_per_node)
 {
     return dof_per_node * node_id + component;
 }
 
+// 判断节点是否命中点载荷/点约束条件。
 bool MatchesPoint(const Node& node, const vector<double>& coef)
 {
     const double px = coef.size() >= 1 ? coef[0] : 0.0;
@@ -76,6 +82,7 @@ bool MatchesPoint(const Node& node, const vector<double>& coef)
     return sqrt(dist2) <= 1e-8;
 }
 
+// 判断二维节点是否落在线段作用域上。
 bool MatchesLine2D(const Node& node, const vector<double>& coef)
 {
     Point_2D p0(coef[0], coef[1]);
@@ -84,12 +91,14 @@ bool MatchesLine2D(const Node& node, const vector<double>& coef)
     return line.contain(node.x, node.y);
 }
 
+// 判断三维节点是否落在给定平面上。
 bool MatchesSurface3D(const Node& node, const vector<double>& coef)
 {
     const double value = coef[0] * node.x + coef[1] * node.y + coef[2] * node.z + coef[3];
     return abs(value) <= 1e-8;
 }
 
+// 将 Zone 参数整理成统一的区间边界表示。
 ZoneBounds MakeZoneBounds(const vector<double>& coef)
 {
     ZoneBounds zone{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, false};
@@ -109,6 +118,7 @@ ZoneBounds MakeZoneBounds(const vector<double>& coef)
     return zone;
 }
 
+// 判断节点是否位于给定 Zone 范围内。
 bool IsPointInsideZone(const Node& node, const ZoneBounds& zone, int spatial_dim)
 {
     const bool in_xy = node.x >= zone.xmin - 1e-8 && node.x <= zone.xmax + 1e-8 &&
@@ -125,6 +135,7 @@ bool IsPointInsideZone(const Node& node, const ZoneBounds& zone, int spatial_dim
         node.z >= zone.zmin - 1e-8 && node.z <= zone.zmax + 1e-8;
 }
 
+// 判断单元所有节点是否均落在给定 Zone 范围内。
 bool IsElementInsideZone(const Element& element, const vector<Node>& nodes, const ZoneBounds& zone, int spatial_dim)
 {
     for (int node_id : element.nodes_id)
@@ -137,6 +148,7 @@ bool IsElementInsideZone(const Element& element, const vector<Node>& nodes, cons
     return true;
 }
 
+// 计算二维单元面积，主要用于三角形区域载荷。
 double ComputeElementArea2D(const Element& element, const vector<Node>& nodes)
 {
     double twice_area = 0.0;
@@ -149,6 +161,7 @@ double ComputeElementArea2D(const Element& element, const vector<Node>& nodes)
     return 0.5 * abs(twice_area);
 }
 
+// 将三角形区域载荷等效为节点力。
 void AssembleTriangleZoneLoad(const Element& element, const vector<double>& load_components, double area, int dof_per_node, vector<double>& equright)
 {
     const double nodal_weight = area / 3.0;
@@ -159,6 +172,7 @@ void AssembleTriangleZoneLoad(const Element& element, const vector<double>& load
     }
 }
 
+// 对四边形单元做高斯积分，生成区域载荷等效节点力。
 int AssembleQuadrilateralZoneLoad(const Element& element, const vector<Node>& nodes, const vector<double>& load_components, int dof_per_node, vector<double>& equright)
 {
     const double gauss_point = 1.0 / sqrt(3.0);
@@ -228,6 +242,7 @@ int AssembleQuadrilateralZoneLoad(const Element& element, const vector<Node>& no
     return 1;
 }
 
+// 计算 Hex8 单元在自然坐标下的形函数及导数。
 void EvaluateHex8Shape(double xi, double eta, double zeta, double N[8], double dN_dxi[8], double dN_deta[8], double dN_dzeta[8])
 {
     const double xi_sign[8] = {-1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0};
@@ -243,6 +258,7 @@ void EvaluateHex8Shape(double xi, double eta, double zeta, double N[8], double d
     }
 }
 
+// 计算 Hex8 单元在指定积分点的雅可比行列式。
 double ComputeHexJacobianDet(const Element& element, const vector<Node>& nodes, double xi, double eta, double zeta, double N[8])
 {
     double dN_dxi[8];
@@ -268,6 +284,7 @@ double ComputeHexJacobianDet(const Element& element, const vector<Node>& nodes, 
     return abs(jacobi.determinant());
 }
 
+// 对 Hex8 单元做体积分，生成三维区域载荷的等效节点力。
 int AssembleHexahedronZoneLoad(const Element& element, const vector<Node>& nodes, const vector<double>& load_components, int dof_per_node, vector<double>& equright)
 {
     const double gauss_point = 1.0 / sqrt(3.0);
@@ -300,6 +317,7 @@ int AssembleHexahedronZoneLoad(const Element& element, const vector<Node>& nodes
     return 1;
 }
 
+// 判断 Hex8 单元某个面是否与目标平面重合。
 bool FaceMatchesSurface(const Element& element, const vector<Node>& nodes, const HexFaceInfo& face, const vector<double>& surface_coef)
 {
     for (int local_node : face.nodes)
@@ -312,6 +330,7 @@ bool FaceMatchesSurface(const Element& element, const vector<Node>& nodes, const
     return true;
 }
 
+// 对 Hex8 单元表面做积分，生成表面载荷等效节点力。
 int AssembleHexahedronSurfaceLoad(const Element& element, const vector<Node>& nodes, const HexFaceInfo& face, const vector<double>& load_components, int dof_per_node, vector<double>& equright)
 {
     const double gauss_point = 1.0 / sqrt(3.0);
@@ -377,6 +396,7 @@ int AssembleHexahedronSurfaceLoad(const Element& element, const vector<Node>& no
 }
 }
 
+// 收集并展开位移约束，形成总体自由度约束表。
 int Slove::Fixed_Displacement_Constraints(const struct Displace& dis, const vector<Node>& nodes)
 {
     dof_per_node = DetectSpatialDimension(nodes);
@@ -465,6 +485,7 @@ int Slove::Fixed_Displacement_Constraints(const struct Displace& dis, const vect
     return 1;
 }
 
+// 调用各单元对象组装总体刚度矩阵。
 int Slove::Assemble_Global_Stiff(const vector<unique_ptr<ShapeSpace::ShapeInterface>>& shape)
 {
     if (constrained_dofs.empty())
@@ -500,6 +521,7 @@ int Slove::Assemble_Global_Stiff(const vector<unique_ptr<ShapeSpace::ShapeInterf
     return 1;
 }
 
+// 采用罚函数法处理位移边界条件。
 int Slove::Apply_Constraint_to_Stiff()
 {
     if (gK.getRows() == 0 || gF.getRows() == 0)
@@ -535,6 +557,7 @@ int Slove::Apply_Constraint_to_Stiff()
     return 1;
 }
 
+// 依据载荷定义组装总体载荷向量。
 int Slove::Apply_Load_to_Force_Vector(const struct Load& load, const vector<Node>& nodes, const vector<Element>& elements)
 {
     dof_per_node = DetectSpatialDimension(nodes, &elements);
@@ -756,6 +779,7 @@ int Slove::Apply_Load_to_Force_Vector(const struct Load& load, const vector<Node
     return 1;
 }
 
+// 直接求逆并完成线性方程组求解。
 int Slove::Slove_Linear_System()
 {
     u = gK.inverse() * gF;

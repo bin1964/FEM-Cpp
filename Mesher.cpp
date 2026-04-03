@@ -11,6 +11,7 @@ struct ParsedElement {
 	vector<int> node_ids;
 };
 
+// 将 Gmsh 单元类型映射为本程序支持的节点数与空间维度。
 bool GetSupportedElementInfo(int gmsh_type, int& node_count, int& dim) {
 	if (gmsh_type == 2) {
 		node_count = 3;
@@ -31,6 +32,7 @@ bool GetSupportedElementInfo(int gmsh_type, int& node_count, int& dim) {
 }
 }
 
+// 根据输入的单元类型决定是生成结构化网格还是读取外部网格。
 int Mesher::Generate_Mesh(const struct ElementType& element_type, const struct Geom_RVE& geom_rve, const struct Grid_size& grid_size) {
 	nodes.clear();
 	elements.clear();
@@ -63,6 +65,7 @@ int Mesher::Generate_Mesh(const struct ElementType& element_type, const struct G
 	return 0;
 }
 
+// 生成二维结构化四边形网格。
 int Mesher::Generate_qua_grids(const struct Geom_RVE& geom_rve, const struct Grid_size& grid_size) {
 	dim = 2;
 	dx = grid_size.delta_x;
@@ -103,6 +106,7 @@ int Mesher::Generate_qua_grids(const struct Geom_RVE& geom_rve, const struct Gri
 	return 1;
 }
 
+// 生成二维结构化三角形网格。
 int Mesher::Generate_tri_grids(const Geom_RVE& geom_rve, const Grid_size& grid_size) {
 	dim = 2;
 	dx = grid_size.delta_x;
@@ -153,6 +157,7 @@ int Mesher::Generate_tri_grids(const Geom_RVE& geom_rve, const Grid_size& grid_s
 	return 1;
 }
 
+// 读取外部 mesh_inp.dat 文件中的节点和单元数据。
 int Mesher::Read_mesh() {
 	ifstream idata("data\\mesh_inp.dat");
 	if (!idata.is_open()) {
@@ -294,6 +299,7 @@ int Mesher::Read_mesh() {
 	return 1;
 }
 
+// 将当前网格导出为 Tecplot 文本格式。
 int Mesher::Export_mesh_data_tecplot() {
 	if (elements.empty()) {
 		cout << "Error: no mesh data is available to export!" << endl;
