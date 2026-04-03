@@ -1,32 +1,95 @@
 {
-  "version": 2,
+  "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 20,
+    "minor": 21,
     "patch": 0
   },
   "configurePresets": [
     {
-      "name": "vs2022",
-      "displayName": "Visual Studio 2022 x64",
-      "description": "Configure with the Visual Studio 2022 generator",
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "vs-base",
+      "hidden": true,
+      "inherits": "base",
       "generator": "Visual Studio 17 2022",
       "architecture": "x64",
-      "binaryDir": "${sourceDir}/build/vs2022"
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "vs2022",
+      "inherits": "vs-base",
+      "displayName": "Visual Studio 2022 x64",
+      "description": "Multi-config build with the Visual Studio 2022 generator"
+    },
+    {
+      "name": "ninja-base",
+      "hidden": true,
+      "inherits": "base",
+      "generator": "Ninja"
+    },
+    {
+      "name": "ninja-debug",
+      "inherits": "ninja-base",
+      "displayName": "Ninja Debug",
+      "description": "Single-config Debug build with Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ninja-release",
+      "inherits": "ninja-base",
+      "displayName": "Ninja Release",
+      "description": "Single-config Release build with Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
     {
       "name": "vs2022-debug",
-      "displayName": "Build Debug",
+      "displayName": "VS2022 Debug",
+      "description": "Build the Visual Studio 2022 Debug configuration",
       "configurePreset": "vs2022",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     },
     {
       "name": "vs2022-release",
-      "displayName": "Build Release",
+      "displayName": "VS2022 Release",
+      "description": "Build the Visual Studio 2022 Release configuration",
       "configurePreset": "vs2022",
-      "configuration": "Release"
+      "configuration": "Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-debug-build",
+      "displayName": "Ninja Debug Build",
+      "description": "Build the Ninja Debug tree",
+      "configurePreset": "ninja-debug"
+    },
+    {
+      "name": "ninja-release-build",
+      "displayName": "Ninja Release Build",
+      "description": "Build the Ninja Release tree",
+      "configurePreset": "ninja-release"
     }
   ]
 }
